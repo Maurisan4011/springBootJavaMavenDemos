@@ -11,29 +11,27 @@ import com.maudev.repo.IPersonaRepo;
 
 @Controller
 public class DemoController {
-	
+
 	@Autowired
 	private IPersonaRepo repo;
-
+	
 	@GetMapping("/greeting")
-	public String greeting(@RequestParam(name="name", required=false, defaultValue="World") String name, Model model) {
-		//Logina 
-		Persona p = new Persona();
-
-		p.setIdPersona(2);
-		p.setNombre("Reydecwewop");
-
-				model.addAttribute("name", name);
-		return "greeting";
-	}
+    public String greeting(@RequestParam(name="name", required=false, defaultValue="World") String name, Model model) {
+        //logica 
+		
+		Persona m = new Persona();
+		m.setIdPersona(4);
+		m.setNombre("MAuridev");
+		repo.save(m);
+		
+		model.addAttribute("name", name);
+        return "greeting";
+    }
 	
 	@GetMapping("/listar")
-	public String greeting(Model model) {
-		
-	
+    public String greeting(Model model) {
+        //logica 							
 		model.addAttribute("personas", repo.findAll());
-		return "greeting";
-	}
-
-
+        return "greeting";
+    }
 }

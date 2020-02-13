@@ -5,12 +5,9 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
-	<p th:text="'eh amiigooo, ' + ${name} + '!'" />
-	<table border="1" style="width: 300px">
-		<tr>
-			<td>ID</td>
-			<td>Nombre</td>
-		</tr>
+	<p th:text="'Hello, ' + ${name} + '!'" />
+
+	<table>
 		<th:block th:each="per : ${personas}">
 			<tr>
 				<td th:text="${per.idPersona}"></td>
