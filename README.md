@@ -7,6 +7,7 @@
 - Inyección de dependencias
 - Spring MVC Thymeleaf
 - Spring Data (JPA) + Spring MVC
+- Servicios REST 
 - Spring Tools == 4
 - PostgreSql == 10
 - Maven==4.0.0.
