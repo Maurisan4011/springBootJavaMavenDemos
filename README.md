@@ -1,4 +1,4 @@
-# Spring -SpringBoot
+﻿# Spring -SpringBoot
 
 ## Algunos Demos Tecnologias utilizadas
 
@@ -10,7 +10,8 @@
 - Spring Servicios REST
 - Spring Security
 - Spring Security Base Datos
--  Herok
+- CRUD con Spring Boot y H2
+- Heroku
 - Spring Tools == 4
 - PostgreSql == 10
 - Maven==4.0.0.
