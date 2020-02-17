@@ -3,17 +3,41 @@
 <head>
 <title>Getting Started: Serving Web Content</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<!-- Bootstrap CSS -->
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+	integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+	crossorigin="anonymous">
 </head>
 <body>
 	<p th:text="'Hello, ' + ${name} + '!'" />
 
-	<table>
-		<th:block th:each="per : ${personas}">
-			<tr>
-				<td th:text="${per.idPersona}"></td>
-				<td th:text="${per.nombre}"></td>
-			</tr>
-		</th:block>
+	<div class="container mt-4">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>NOMBRE</th>
+					<th>ACCION</th>
+				</tr>
+			</thead>
+			<tbody>
+				<th:block th:each="per : ${personas}">
+
+					<tr>
+						<td th:text="${per.idPersona}"></td>
+						<td th:text="${per.nombre}"></td>
+						<td><a class="btn btn-warning">Editar</a> <a
+							class="btn btn-danger">Eliminar</a></td>
+					</tr>
+
+				</th:block>
+
+			</tbody>
+		</table>
+
+	</div>
+
 	</table>
 </body>
 </html>
