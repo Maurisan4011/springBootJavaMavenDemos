@@ -27,25 +27,32 @@ public class PersonaDao implements IPersona {
 	@Override
 	public Persona listPersonaId(int id) {
 		// TODO Auto-generated method stub
-		return null;
+		String sql= "select * from persona where id=?";
+		Persona per = template.queryForObject(sql, new Object[] {id}, new BeanPropertyRowMapper<Persona>(Persona.class));
+		return per;
 	}
 
 	@Override
 	public int agregar(Persona p) {
 		// TODO Auto-generated method stub
-		return 0;
+		String sql = "insert into persona(name)values(?)";
+		int res = template.update(sql,p.getName());
+		return res;
 	}
 
 	@Override
 	public int editar(Persona p) {
 		// TODO Auto-generated method stub
-		return 0;
+		String sql= "update persona set name=? where id=?";
+		int res= template.update(sql, p.getName(), p.getId());
+		return res;
 	}
 
 	@Override
 	public void delete(int id) {
 		// TODO Auto-generated method stub
-
+		String sql= "delete from persona where id=?";
+		template.update(sql,id);
 	}
 
 }

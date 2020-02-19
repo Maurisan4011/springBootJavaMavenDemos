@@ -15,6 +15,7 @@
 </head>
 <body>
 	<div class="container mt-4">
+		<a href="/nuevo" class="btn btn-success">Agregar Nuevo</a>
 		<table class="table">
 			<thead>
 				<tr>
@@ -25,13 +26,11 @@
 			</thead>
 			<tbody>
 				<c:forEach var="persona" items="${personas}">
-
 					<tr>
 						<td>${persona.id}</td>
 						<td>${persona.name}</td>
-						<td>
-						<a class="btn btn-warning">Editar</a>
-						<a class="btn btn-danger">Eliminar</a>
+						<td><a href="/editar/${persona.id}" class="btn btn-warning">Editar</a>
+							<a href="/eliminar/${persona.id}" class="btn btn-danger">Eliminar</a>
 						</td>
 					</tr>
 

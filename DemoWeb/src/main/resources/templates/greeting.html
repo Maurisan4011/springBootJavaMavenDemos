@@ -10,9 +10,8 @@
 	crossorigin="anonymous">
 </head>
 <body>
-	<p th:text="'Hello, ' + ${name} + '!'" />
-
 	<div class="container mt-4">
+		<p class="text-center" th:text="'Hello, ' + ${name} + '!'" />
 		<table class="table">
 			<thead>
 				<tr>
@@ -23,21 +22,15 @@
 			</thead>
 			<tbody>
 				<th:block th:each="per : ${personas}">
-
 					<tr>
 						<td th:text="${per.idPersona}"></td>
 						<td th:text="${per.nombre}"></td>
 						<td><a class="btn btn-warning">Editar</a> <a
 							class="btn btn-danger">Eliminar</a></td>
 					</tr>
-
 				</th:block>
-
 			</tbody>
 		</table>
-
 	</div>
-
-	</table>
 </body>
 </html>

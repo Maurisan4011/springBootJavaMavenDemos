@@ -10,7 +10,7 @@
 - Spring Servicios REST
 - Spring Security
 - Spring Security Base Datos
-- CRUD con Spring Boot y H2
+- CRUD Spring Boot, Thymeleaf, Bootstrap y Base de Datos H2 
 - Heroku
 - Spring Tools == 4
 - PostgreSql == 10
