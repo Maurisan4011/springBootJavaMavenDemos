@@ -4,6 +4,7 @@
 
 - Initializr
 - Consola
+- anotaciones-spring
 - Inyección de dependencias
 - Spring MVC Thymeleaf
 - Spring Data (JPA) + Spring MVC
