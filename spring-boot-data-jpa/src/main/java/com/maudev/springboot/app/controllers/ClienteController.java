@@ -1,19 +1,22 @@
 package com.maudev.springboot.app.controllers;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.MalformedURLException;
+
 import java.util.Map;
 
 import javax.validation.Valid;
 
-//import org.hibernate.boot.model.source.internal.hbm.SubclassEntitySourceImpl;
+//import org.apache.tomcat.util.http.fileupload.UploadContext;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-//import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -29,23 +32,43 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.maudev.springboot.app.models.entity.Cliente;
 import com.maudev.springboot.app.models.service.IClienteService;
+import com.maudev.springboot.app.models.service.IUploadFileService;
 import com.maudev.springboot.app.util.paginator.PageRender;
 
-@Controller()
+@Controller
 @SessionAttributes("cliente")
 public class ClienteController {
 
 	@Autowired
 	private IClienteService clienteService;
 
+	@Autowired
+	private IUploadFileService uploadFileService;
+
+	@GetMapping(value = "/uploads/{filename:.+}")
+	public ResponseEntity<Resource> verFoto(@PathVariable String filename) {
+
+		Resource recurso = null;
+		try {
+			recurso = uploadFileService.load(filename);
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + recurso.getFilename() + "\"")
+				.body(recurso);
+	}
+
 	@GetMapping(value = "/ver/{id}")
 	public String ver(@PathVariable(value = "id") Long id, Map<String, Object> model, RedirectAttributes flash) {
 
 		Cliente cliente = clienteService.findOne(id);
 		if (cliente == null) {
-			flash.addAttribute("error", "El CLiente no Existe en la base de datos");
+			flash.addFlashAttribute("error", "El cliente no existe en la base de datos");
 			return "redirect:/listar";
 		}
+
 		model.put("cliente", cliente);
 		model.put("titulo", "Detalle cliente: " + cliente.getNombre());
 		return "ver";
@@ -53,70 +76,77 @@ public class ClienteController {
 
 	@RequestMapping(value = "/listar", method = RequestMethod.GET)
 	public String listar(@RequestParam(name = "page", defaultValue = "0") int page, Model model) {
-		Pageable pageRequest = PageRequest.of(page, 5);
+
+		Pageable pageRequest = PageRequest.of(page, 4);
+
 		Page<Cliente> clientes = clienteService.findAll(pageRequest);
 
-		PageRender<Cliente> pageRender = new PageRender<>("/listar", clientes);
+		PageRender<Cliente> pageRender = new PageRender<Cliente>("/listar", clientes);
 		model.addAttribute("titulo", "Listado de clientes");
 		model.addAttribute("clientes", clientes);
 		model.addAttribute("page", pageRender);
-
 		return "listar";
 	}
 
 	@RequestMapping(value = "/form")
 	public String crear(Map<String, Object> model) {
+
 		Cliente cliente = new Cliente();
 		model.put("cliente", cliente);
-		model.put("titulo", "Formulario Cliente");
+		model.put("titulo", "Formulario de Cliente");
 		return "form";
 	}
 
 	@RequestMapping(value = "/form/{id}")
 	public String editar(@PathVariable(value = "id") Long id, Map<String, Object> model, RedirectAttributes flash) {
+
 		Cliente cliente = null;
 
 		if (id > 0) {
 			cliente = clienteService.findOne(id);
 			if (cliente == null) {
-				flash.addFlashAttribute("error", "El Id del Cliente no existe en la base de datos!!");
+				flash.addFlashAttribute("error", "El ID del cliente no existe en la BBDD!");
 				return "redirect:/listar";
-
 			}
 		} else {
-			flash.addFlashAttribute("error", "El Id del Cliente no puede ser Cero ");
+			flash.addFlashAttribute("error", "El ID del cliente no puede ser cero!");
 			return "redirect:/listar";
 		}
-
 		model.put("cliente", cliente);
-		model.put("titulo", "Usted esta Editando Cliente");
+		model.put("titulo", "Editar Cliente");
 		return "form";
 	}
 
 	@RequestMapping(value = "/form", method = RequestMethod.POST)
 	public String guardar(@Valid Cliente cliente, BindingResult result, Model model,
 			@RequestParam("file") MultipartFile foto, RedirectAttributes flash, SessionStatus status) {
+
 		if (result.hasErrors()) {
 			model.addAttribute("titulo", "Formulario de Cliente");
 			return "form";
 		}
+
 		if (!foto.isEmpty()) {
+			if (cliente.getId() != null && cliente.getId() > 1 && cliente.getFoto() != null
+					&& cliente.getFoto().length() > 1) {
 
-			String rootPath = "C://Temp//uploads";
+				uploadFileService.delete(cliente.getFoto());
+			}
+
+			String uniqueFilename = null;
 			try {
-				byte[] bytes = foto.getBytes();
-				Path rutaCompleta = Paths.get(rootPath + "//" + foto.getOriginalFilename());
-				Files.write(rutaCompleta, bytes);
-				flash.addFlashAttribute("info", "SE Subio correctamente '" + foto.getOriginalFilename() + "'");
-
-				cliente.setFoto(foto.getOriginalFilename());
-
+				uniqueFilename = uploadFileService.copy(foto);
 			} catch (IOException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+
+			flash.addFlashAttribute("info", "Has subido correctamente '" + uniqueFilename + "'");
+
+			cliente.setFoto(uniqueFilename);
 		}
 
-		String mensajeFlash = (cliente.getId() != null) ? "Cliente Editado con Exito" : "Cliente Creado con Exito!!";
+		String mensajeFlash = (cliente.getId() != null) ? "Cliente editado con éxito!" : "Cliente creado con éxito!";
 
 		clienteService.save(cliente);
 		status.setComplete();
@@ -126,12 +156,17 @@ public class ClienteController {
 
 	@RequestMapping(value = "/eliminar/{id}")
 	public String eliminar(@PathVariable(value = "id") Long id, RedirectAttributes flash) {
+
 		if (id > 0) {
+			Cliente cliente = clienteService.findOne(id);
 			clienteService.delete(id);
-			flash.addFlashAttribute("success", "Cliente Eliminado con exito");
+			flash.addFlashAttribute("success", "Cliente eliminado con éxito!");
+
+			if (uploadFileService.delete(cliente.getFoto())) {
+				flash.addFlashAttribute("info", "Foto   " + cliente.getFoto() + "  eliminada con Exito!");
+			}
 		}
+
 		return "redirect:/listar";
-
 	}
-
 }
